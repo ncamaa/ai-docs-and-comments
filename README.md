@@ -2,7 +2,7 @@
 
 AI Docs & Comments is a Visual Studio Code extension that creates documentation and adds comments to your functions using Artificial Intelligence.
 
-![Animated gif demonstrating AI Docs & Comments](./ai-docs-and-comments-trimmed-gif.gif)
+![Animated gif demonstrating AI Docs & Comments](https://raw.githubusercontent.com/codama-dev/ai-docs-and-comments/main/ai-docs-and-comments-trimmed-gif.gif)
 
 ## Getting Started
 
@@ -56,4 +56,4 @@ The extension is tested extensively with JavaScript and Python. However, it is d
 
 ## License
 
-This extension is licensed under the [MIT License](LICENSE.txt).
+This extension is licensed under the [MIT License](https://raw.githubusercontent.com/codama-dev/ai-docs-and-comments/main/LICENSE.txt).
