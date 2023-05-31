@@ -1,0 +1,143 @@
+{
+  "name": "ai-docs-and-comments",
+  "displayName": "AI Docs & Comments",
+  "description": "Create documentation and add comments to functions using AI",
+  "publisher": "codama",
+  "author": {
+    "name": "Codama.dev",
+    "email": "info@codama.dev"
+  },
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [{
+        "command": "ai-docs-and-comments.createDocumentation",
+        "title": "AI Docs & Comments: Create Documentation"
+      },
+      {
+        "command": "ai-docs-and-comments.addComments",
+        "title": "AI Docs & Comments: Add Comments"
+      },
+      {
+        "command": "ai-docs-and-comments.goToSettings",
+        "title": "AI Docs & Comments: Go to Settings"
+      }
+    ],
+
+
+    "configuration": {
+      "title": "AI Docs & Comments - OpenAI",
+      "properties": {
+        "aiDocsAndComments.openAI.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key (Default: '')",
+          "title": "API Key",
+          "patternErrorMessage": "Invalid API Key format. Please enter a valid API Key.",
+          "markdownDescription": "API Key is required to authenticate and access the OpenAI API. You can obtain your API Key from the [OpenAI Platform](https://platform.openai.com/account/api-keys)."
+        },
+        "aiDocsAndComments.openAI.engine": {
+          "type": "string",
+          "default": "text-davinci-002",
+          "description": "AI Model (Default: 'text-davinci-002')",
+          "title": "AI Model",
+          "enum": [
+            "text-davinci-003",
+            "text-davinci-002",
+            "text-curie-001",
+            "text-babbage-001",
+            "text-ada-001"
+          ],
+          "markdownDescription": "The AI Model determines the behavior and capabilities of the language model. You can choose from different models depending on your needs. For more information about each model, refer to the [OpenAI Model Endpoint Compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility)."
+        },
+        "aiDocsAndComments.openAI.maxTokens": {
+          "type": "number",
+          "default": 600,
+          "description": "Max Tokens (Default: 600)",
+          "title": "Max Tokens",
+          "minimum": 1,
+          "maximum": 4000,
+          "markdownDescription": "Max Tokens specifies the maximum number of tokens to generate in a **single request**. Requests can use up to 4000 tokens shared between prompt and completion. One token is roughly 4 characters for normal English text."
+        },
+        "aiDocsAndComments.openAI.codeLanguage": {
+          "type": "string",
+          "default": "JavaScript",
+          "description": "Code Language (Default: 'JavaScript')",
+          "title": "Code Language",
+          "enum": [
+            "JavaScript",
+            "Python",
+            "Java",
+            "C#",
+            "Ruby",
+            "Go",
+            "Rust",
+            "PHP",
+            "TypeScript",
+            "Other"
+          ],
+          "enumDescriptions": [
+            "JavaScript",
+            "Python",
+            "Java",
+            "C#",
+            "Ruby",
+            "Go",
+            "Rust",
+            "PHP",
+            "TypeScript",
+            "Other (Enter your own code language)"
+          ],
+          "markdownDescription": "Code Language specifies the programming language for the code snippets. You can choose from the predefined list of languages or enter your own code language if it's not available"
+        },
+        "aiDocsAndComments.openAI.customCodeLanguage": {
+          "type": "string",
+          "default": "",
+          "description": "Custom Code Language",
+          "title": "Custom Code Language",
+          "markdownDescription": "⚠️ WARNING: leave empty. only use this option if the desired Code Language is not listed above. Enter your own code language if the desired Code Language only if is not listed above. This will override the selected Code Language."
+        }
+      }
+    }
+
+
+
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.81.0",
+    "webpack-cli": "^5.0.2"
+  },
+  "dependencies": {
+    "openai": "^3.2.1"
+  }
+}
