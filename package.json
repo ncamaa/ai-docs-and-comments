@@ -1,8 +1,9 @@
 {
+  "version": "0.0.2",
   "name": "ai-docs-and-comments",
   "displayName": "AI Docs & Comments",
   "description": "Create documentation and add comments to functions using AI",
-  "publisher": "codama",
+  "publisher": "CodamaSoftware",
   "icon": "ai-docs-and-comments-logo-png.png",
   "author": {
     "name": "Codama.dev",
@@ -13,7 +14,6 @@
     "url": "https://github.com/codama-dev/ai-docs-and-comments"
   },
   "license": "MIT",
-  "version": "0.0.1",
   "engines": {
     "vscode": "^1.78.0"
   },

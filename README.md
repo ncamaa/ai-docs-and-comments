@@ -6,7 +6,7 @@ AI Docs & Comments is a Visual Studio Code extension that creates documentation 
 
 ## Getting Started
 
-1. Install AI Docs & Comments from the Visual Studio Code marketplace.
+1. Install AI Docs & Comments from the [Visual Studio Code marketplace](https://marketplace.visualstudio.com/items?itemName=CodamaSoftware.ai-docs-and-comments&ssr=false#overview).
 2. Obtain an API Key from the [OpenAI Platform](https://platform.openai.com/account/api-keys).
 3. Input your API Key in the AI Docs & Comments configuration settings in Visual Studio Code. You can adjust the settings using the `AI Docs & Comments: Go to Settings` command (<kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>P</kbd> on Mac, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on Windows).
 
@@ -52,7 +52,19 @@ This extension contributes the following settings:
 
 ## Support
 
-The extension is tested extensively with JavaScript and Python. However, it is designed to work with other programming languages as well. If you encounter any issues while using a different programming language, feel free to raise an issue on our GitHub page.
+The extension was tested mainly with JavaScript and Python. However, it is designed to work with other programming languages as well. If you encounter any issues while using a different programming language, feel free to raise an issue on our GitHub page.
+
+## Contribution
+
+Everyone is welcome to contribute to this project! If you have improvement suggestions, feature requests, or want to improve our code or documentation, we appreciate your help.
+
+Here's how you can contribute:
+
+1. Fork this repository.
+2. Make your changes.
+3. Open a pull request to incorporate your changes into our main branch.
+
+We're looking forward to seeing your pull requests!
 
 ## License
 
