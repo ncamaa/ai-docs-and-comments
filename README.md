@@ -1,6 +1,7 @@
 # AI Docs & Comments
 
 AI Docs & Comments is a Visual Studio Code extension that creates documentation and adds comments to your functions using Artificial Intelligence.
+This extension connects **directly to OpenAI**, operating without the intervention of any third-party servers. This unique feature ensures a more cost-effective solution and guarantees the utmost data security and privacy.
 
 ![Animated gif demonstrating AI Docs & Comments](https://raw.githubusercontent.com/codama-dev/ai-docs-and-comments/main/ai-docs-and-comments-trimmed-gif.gif)
 
