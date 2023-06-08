@@ -30,5 +30,5 @@
     "titleBar.inactiveForeground": "#e7e7e799"
   },
   "peacock.color": "#351b49",
-  "cSpell.words": ["davinci"]
+  "cSpell.words": ["davinci", "Rustdoc"]
 }

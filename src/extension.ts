@@ -8,11 +8,12 @@ import {
 
 import * as interfaces from "./interfaces";
 
-const COST_PER_TOKEN = 0.06 / 1000; // Assuming $0.06 per 1000 tokens for Davinci engine
+import { COST_PER_TOKEN, LOG_PROMO, popup } from "./constants";
 
-const LOG_PROMO = `AI Docs & Comments: `;
-
-const popup = vscode.window.showInformationMessage;
+import {
+  generatePromptForAddingComments,
+  generatePromptForGettingFunctionAndDoc,
+} from "./prompts";
 
 // Function to get configuration details from the user's settings
 function getConfiguration(): interfaces.Config | null {
@@ -243,38 +244,6 @@ function generatePromptForDocOnly(options: interfaces.PromptOptions): string {
   return prompt;
 }
 
-// generate prompt for getting the function and the documentation
-function generatePromptForGettingFunctionAndDoc(
-  options: interfaces.PromptOptions
-): string {
-  const { codeLanguage, functionText } = options;
-
-  const docTypeNote = addRelatedNotesAboutTheDocumentationType(codeLanguage);
-
-  let prompt = `Generate documentation for the following ${codeLanguage} function """${functionText}""", return the function together with its documentation. Do not add any other strings beside the function and its documentation. Include data about the params and the return, and also a description about the function, do not include examples. Note I will use your response to replace the selected function in my code editor so return it clean. ${docTypeNote}`;
-
-  return prompt;
-}
-
-function generatePromptForAddingComments(
-  options: interfaces.PromptOptions
-): string {
-  const { codeLanguage, functionText } = options;
-
-  const prompt = `Given the following ${codeLanguage} function:\n\`\`\`\n${functionText}\n\`\`\`\nPlease rewrite it by adding clear and informative inline comments above each significant line of code. For example, given this JS function:\n\`\`\`
-function isOdd(number) {
-    return number % 2 !== 0;
-}\`\`\`\nYou should return:\n\`\`\`
-function isOdd(number) {
-  // Check if the number is odd. If it is, return true; otherwise, return false.
-  return number % 2 !== 0;
-}\`\`\`\nPlease follow the same pattern to comment the provided function.`;
-
-  console.log(LOG_PROMO, { prompt });
-
-  return prompt;
-}
-
 const sanitizeAIResult = (
   options: interfaces.sanitizeResultOptions
 ): string => {
@@ -378,45 +347,6 @@ const showEstimatedCost = (result: { data: CreateCompletionResponse }) => {
 
   // show information message
   popup(`Estimated cost: $${estimatedCost.toFixed(5)}`);
-};
-
-const addRelatedNotesAboutTheDocumentationType = (
-  codeLanguage: string
-): string => {
-  // lower case
-  codeLanguage = codeLanguage.toLocaleLowerCase();
-
-  switch (codeLanguage) {
-    case "javascript":
-      return "use JSDoc syntax";
-
-    case "python":
-      return "use Python docstring syntax";
-
-    case "java":
-      return "use Javadoc syntax";
-
-    case "c#":
-      return "use XML Documentation syntax";
-
-    case "ruby":
-      return "use RDoc or YARD syntax";
-
-    case "go":
-      return "use GoDoc syntax";
-
-    case "rust":
-      return "use Rustdoc syntax";
-
-    case "php":
-      return "use PHPDoc syntax";
-
-    case "type script":
-      return "use TSDoc syntax";
-
-    default:
-      return "";
-  }
 };
 
 export function deactivate() {}

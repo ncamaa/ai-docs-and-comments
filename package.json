@@ -1,5 +1,5 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.4",
   "name": "ai-docs-and-comments",
   "displayName": "AI Docs & Comments",
   "description": "Create documentation and add comments to functions using AI",
@@ -109,6 +109,16 @@
           "description": "Custom Code Language",
           "title": "Custom Code Language",
           "markdownDescription": "⚠️ WARNING: leave empty. only use this option if the desired Code Language is not listed above. Enter your own code language if the desired Code Language only if is not listed above. This will override the selected Code Language."
+        },
+        "aiDocsAndComments.prompts.docPrompt": {
+          "type": "string",
+          "default": "Generate documentation for the following {0} function {1}, return the function together with its documentation. Do not add any other strings beside the function and its documentation. Include data about the params and the return, and also a description about the function, do not include examples. Note I will use your response to replace the selected function in my code editor so return it clean. {2}",
+          "description": "Set the prompt for generating documentation. Use {0} for codeLanguage, {1} for functionText, and {2} for docTypeNote. Default: 'Generate documentation for the following {0} function {1}, return the function together with its documentation. Do not add any other strings beside the function and its documentation. Include data about the params and the return, and also a description about the function, do not include examples. Note I will use your response to replace the selected function in my code editor so return it clean. {2}'"
+        },
+        "aiDocsAndComments.prompts.commentPrompt": {
+          "type": "string",
+          "default": "Given the following {0} function: \\n\\`\\`\\`\\n{1}\\n\\`\\`\\`\\n Please rewrite it by adding clear and informative inline comments above each significant line of code.",
+          "description": "Set the prompt for adding comments. Use {0} for codeLanguage and {1} for functionText. Default: 'Given the following {0} function: \\n\\`\\`\\`\\n{1}\\n\\`\\`\\`\\n Please rewrite it by adding clear and informative inline comments above each significant line of code.'"
         }
       }
     }
