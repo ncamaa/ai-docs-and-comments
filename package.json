@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "ai-docs-and-comments",
   "displayName": "AI Docs & Comments",
   "description": "Create documentation and add comments to functions using AI. Javascript, Python, Java, C#, Ruby, Go, Rust, PHP, TypeScript, and more.",
