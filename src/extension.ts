@@ -1,10 +1,7 @@
 import * as vscode from "vscode";
-import {
-  Configuration,
-  CreateCompletionResponse,
-  OpenAIApi,
-  CreateCompletionRequest,
-} from "openai";
+
+import OpenAI from "openai";
+
 
 import * as interfaces from "./interfaces";
 
@@ -15,27 +12,21 @@ import {
   generatePromptForGettingFunctionAndDoc,
 } from "./prompts";
 
-// Function to get configuration details from the user's settings
-function getConfiguration(): interfaces.Config | null {
-  // Fetch the settings using the id you defined in your package.json
+async function getConfiguration(): Promise<interfaces.Config | null> {
   const config = vscode.workspace.getConfiguration("aiDocsAndComments.openAI");
 
-  // Get each setting using the .get method and the configuration's property key
   const apiKey = config.get<string>("apiKey", "");
-  const engine = config.get<string>("engine", "text-davinci-002");
+  const engine = config.get<string>("engine", "gpt-3.5-turbo");
   const maxTokens = config.get<number>("maxTokens", 60);
   let codeLanguage = config.get<string>("codeLanguage", "JavaScript");
 
-  // if aiDocsAndComments.openAI.customCodeLanguage override codeLanguage
   const customCodeLanguage = config.get<string>("customCodeLanguage", "");
   if (customCodeLanguage) {
     codeLanguage = customCodeLanguage;
   }
 
-  // log the selected settings
   console.log(LOG_PROMO, { apiKey, engine, maxTokens, codeLanguage });
 
-  // Check the validity of the settings and show an error message if invalid
   if (
     typeof apiKey !== "string" ||
     apiKey.length === 0 ||
@@ -43,30 +34,38 @@ function getConfiguration(): interfaces.Config | null {
     typeof codeLanguage !== "string" ||
     typeof maxTokens !== "number"
   ) {
-    vscode.window
-      .showErrorMessage(
-        "Invalid AI Docs & Comments extension configuration. Please check your settings.",
-        { modal: true },
-        { title: "Open Settings" }
-      )
-      .then((selection) => {
-        if (selection && selection.title === "Open Settings") {
-          vscode.commands.executeCommand(
-            "workbench.action.openSettings",
-            "AI Docs & Comments - OpenAI"
-          );
-        }
-      });
+    showError("Invalid AI Docs & Comments extension configuration. Please check your settings.");
     return null;
   }
 
-  // show a message with the config:
-  popup(
-    `Engine: ${engine}, with maximum ${maxTokens} tokens per request. Code language: ${codeLanguage}`
-  );
+  // Verify the engine with available models from OpenAI
+  const openAiClient = new OpenAI({ apiKey });
+  try {
+    const models = await openAiClient.models.list();
+    const modelIds = models.data.map(model => model.id);
 
-  // Return the settings as an object
+    if (!modelIds.includes(engine)) {
+      showError(`The engine "${engine}" is not available. Please select a valid engine in the settings. More info here: https://platform.openai.com/docs/models/model-endpoint-compatibility`);
+      return null;
+    }
+  } catch (error) {
+    showError("Failed to fetch available models. Please check your API key and connection.");
+    console.error("Model fetch error:", error);
+    return null;
+  }
+
+  popup(`Engine: ${engine}, with maximum ${maxTokens} tokens per request. Code language: ${codeLanguage}`);
   return { apiKey, engine, maxTokens, codeLanguage };
+}
+
+function showError(message: string) {
+  vscode.window
+    .showErrorMessage(message, { modal: true }, { title: "Open Settings" })
+    .then(selection => {
+      if (selection && selection.title === "Open Settings") {
+        vscode.commands.executeCommand("workbench.action.openSettings", "AI Docs & Comments - OpenAI");
+      }
+    });
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -92,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       popup("Generating documentation, hold tight...");
 
-      const config = getConfiguration();
+      const config = await getConfiguration();
       if (!config) {
         // show error message
         vscode.window.showErrorMessage(
@@ -143,7 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
     "ai-docs-and-comments.addComments",
     async () => {
       popup("Generating comments (experimental), hold tight... ");
-      const config = getConfiguration();
+      const config = await getConfiguration();
       if (!config) {
         // show error message
         vscode.window.showErrorMessage(
@@ -191,11 +190,9 @@ export function activate(context: vscode.ExtensionContext) {
 async function generateJSDocFromOpenAI(
   options: interfaces.GenerateJSDocFromOpenAIOptions
 ): Promise<string> {
-  // Create a configuration for OpenAI with the user's API key
-  const conf = new Configuration({
+  const openAiClient = new OpenAI({
     apiKey: options.apiKey,
   });
-  const openAiClient = new OpenAIApi(conf);
 
   const prompt = generatePromptForGettingFunctionAndDoc({
     codeLanguage: options.codeLanguage,
@@ -205,21 +202,17 @@ async function generateJSDocFromOpenAI(
   console.log(LOG_PROMO, { prompt });
 
   try {
-    const createCompletionRequest: CreateCompletionRequest = {
+    // Using chat completion for chat models like gpt-3.5-turbo
+    const result = await openAiClient.chat.completions.create({
       model: options.engine,
-      prompt,
+      messages: [{ role: "user", content: prompt }],
       max_tokens: options.maxTokens,
       temperature: 0.1,
-    };
-
-    console.log(LOG_PROMO, { createCompletionRequest });
-
-    // Call the OpenAI API
-    const result = await openAiClient.createCompletion(createCompletionRequest);
+    });
 
     showEstimatedCost(result);
 
-    const textResult = result.data.choices[0].text || "";
+    const textResult = result.choices[0].message?.content || "";
 
     const sanitizedTextResult = sanitizeAIResult({
       textResult,
@@ -228,10 +221,12 @@ async function generateJSDocFromOpenAI(
 
     return sanitizedTextResult;
   } catch (error) {
-    vscode.window.showErrorMessage('error: "' + error);
+    console.error("Error generating JSDoc:", error);
+    vscode.window.showErrorMessage(`error: "${error}`);
     return "// problem generating documentation";
   }
 }
+
 
 // generate prompt for documentation only
 function generatePromptForDocOnly(options: interfaces.PromptOptions): string {
@@ -300,11 +295,9 @@ const sanitizePythonDoc = (textResult: string) => {
 async function getSameFunctionWithCommentsFromOpenAI(
   options: interfaces.GenerateJSDocFromOpenAIOptions
 ): Promise<string> {
-  // Create a configuration for OpenAI with the user's API key
-  const conf = new Configuration({
+  const openAiClient = new OpenAI({
     apiKey: options.apiKey,
   });
-  const openAiClient = new OpenAIApi(conf);
 
   const prompt = generatePromptForAddingComments({
     codeLanguage: options.codeLanguage,
@@ -314,39 +307,41 @@ async function getSameFunctionWithCommentsFromOpenAI(
   console.log(LOG_PROMO, { prompt });
 
   try {
-    // Call the OpenAI API
-    const result = await openAiClient.createCompletion({
+    // Using chat completion for chat models like gpt-3.5-turbo
+    const result = await openAiClient.chat.completions.create({
       model: options.engine,
-      prompt,
+      messages: [{ role: "user", content: prompt }],
       max_tokens: options.maxTokens,
       temperature: 0.1,
     });
 
     showEstimatedCost(result);
 
-    // Extract the generated documentation from the API response, typescript syntax
-    const textResult = result.data.choices[0].text || "";
-
-    // get only the part that starts with /** and ends with */, including.
-    const functionWithComments = textResult;
-
-    return functionWithComments;
+    const textResult = result.choices[0].message?.content || "";
+    return textResult;
   } catch (error) {
-    vscode.window.showErrorMessage('error: "' + error);
+    vscode.window.showErrorMessage(`error: "${error}`);
     return "// problem generating documentation";
   }
 }
 
-const showEstimatedCost = (result: { data: CreateCompletionResponse }) => {
-  const totalTokens = result.data.usage?.total_tokens || 0;
+
+const showEstimatedCost = (
+  result: OpenAI.Chat.ChatCompletion | OpenAI.Completions.Completion & {
+    _request_id?: string | null;
+  }
+) => {
+  const totalTokens = result.usage?.total_tokens || 0;
   const estimatedCost = totalTokens * COST_PER_TOKEN;
 
   console.log(LOG_PROMO, `Total tokens used: ${totalTokens}`);
   console.log(LOG_PROMO, `Cost per token: $${COST_PER_TOKEN}`);
   console.log(LOG_PROMO, `Estimated cost: $${estimatedCost.toFixed(6)}`);
 
-  // show information message
   popup(`Estimated cost: $${estimatedCost.toFixed(5)}`);
 };
 
+
+
 export function deactivate() {}
+
