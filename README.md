@@ -72,3 +72,7 @@ We're looking forward to seeing your pull requests!
 ## License
 
 This extension is licensed under the [MIT License](https://raw.githubusercontent.com/codama-dev/ai-docs-and-comments/main/LICENSE.txt).
+
+---
+
+Built by [Codama](https://codama.dev), a web and software studio in Israel.
